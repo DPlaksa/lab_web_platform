@@ -1,0 +1,6 @@
+apiVersion: v2
+name: go-lab-ui
+description: Nginx reverse proxy and UI release loader for go_lab_ui
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

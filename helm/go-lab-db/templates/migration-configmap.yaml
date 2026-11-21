@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-migrations
+  labels:
+    app.kubernetes.io/name: go-lab-db
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  000001_init_button_stats.sql: |
+    CREATE TABLE IF NOT EXISTS button_stats (
+        id SMALLINT PRIMARY KEY CHECK (id = 1),
+        click_count BIGINT NOT NULL DEFAULT 0
+    );
+
+    INSERT INTO button_stats (id, click_count)
+    VALUES (1, 0)
+    ON CONFLICT (id) DO NOTHING;

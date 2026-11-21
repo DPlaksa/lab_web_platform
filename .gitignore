@@ -1,0 +1,21 @@
+# Go
+*.exe
+*.test
+*.out
+vendor/
+
+# Helm
+*.tgz
+charts/*.tgz
+helm/*/*.tgz
+
+# OS & editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local secrets / env
+.env
+*.local

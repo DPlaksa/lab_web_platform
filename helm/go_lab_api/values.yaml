@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: go-lab-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+config:
+  port: "8080"
+  dbHost: go-lab-db
+  dbPort: "5432"
+  dbName: lab_db
+  dbSslMode: disable
+
+secret:
+  dbUser: lab_user
+  dbPassword: change-me-in-values

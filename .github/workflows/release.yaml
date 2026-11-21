@@ -23,10 +23,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#ui-}"
           ASSET_NAME="ui-${VERSION}.tar.gz"
-          mkdir -p /tmp/ui-pack
-          # Замени путь на папку с index.html и статикой (например, ui/. или dist/.)
-          cp -r ui/. /tmp/ui-pack/
-          tar -czf "${ASSET_NAME}" -C /tmp/ui-pack .
+          tar -czf "${ASSET_NAME}" -C apps/go_lab_ui .
           echo "ASSET_NAME=${ASSET_NAME}" >> "$GITHUB_ENV"
 
       - name: Publish UI release
@@ -53,15 +50,14 @@ jobs:
           VERSION="${GITHUB_REF_NAME#api-}"
           OWNER_LOWER="${GITHUB_REPOSITORY_OWNER,,}"
           IMAGE="ghcr.io/${OWNER_LOWER}/go-lab-api"
-          # Замени контекст сборки (например, ./api или .), если main.go лежит в подпапке
-          docker build -t "${IMAGE}:${VERSION}" -t "${IMAGE}:latest" .
+          docker build -t "${IMAGE}:${VERSION}" -t "${IMAGE}:latest" apps/go_lab_api/
           docker push "${IMAGE}:${VERSION}"
           docker push "${IMAGE}:latest"
 
       - name: Package API Helm chart
         run: |
           VERSION="${GITHUB_REF_NAME#api-}"
-          helm package helm/go-lab-api --version "${VERSION#v}" --app-version "${VERSION#v}"
+          helm package helm/go_lab_api --version "${VERSION#v}" --app-version "${VERSION#v}"
 
       - name: Publish API release
         uses: softprops/action-gh-release@v2

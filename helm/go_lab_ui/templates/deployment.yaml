@@ -1,0 +1,65 @@
+{{- $cleanTag := trimPrefix "ui-" .Values.release.tag -}}
+{{- $assetName := printf "ui-%s.tar.gz" $cleanTag -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: go-lab-ui
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: go-lab-ui
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: go-lab-ui
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/nginx-conf: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      volumes:
+        - name: ui-dist
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: {{ .Release.Name }}-nginx-conf
+
+      initContainers:
+        - name: fetch-ui-release
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache curl ca-certificates >/dev/null
+              url="https://github.com/{{ .Values.release.repo }}/releases/download/{{ .Values.release.tag }}/{{ $assetName }}"
+              echo "Downloading release artifact from $url"
+              curl -fsSL "$url" -o /tmp/ui-bundle.tar.gz
+              rm -rf /target-dist/*
+              tar -xzf /tmp/ui-bundle.tar.gz -C /target-dist
+              ls -la /target-dist
+          volumeMounts:
+            - name: ui-dist
+              mountPath: /target-dist
+
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: ui-dist
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true

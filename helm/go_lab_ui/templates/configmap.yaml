@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nginx-conf
+  labels:
+    app.kubernetes.io/name: go-lab-ui
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        server {
+            listen 80;
+
+            location / {
+                root /usr/share/nginx/html;
+                index index.html;
+                try_files $uri $uri/ /index.html;
+            }
+
+            location /api/ {
+                proxy_pass http://{{ .Values.api.host }}:{{ .Values.api.port }};
+                proxy_connect_timeout {{ .Values.proxy.connectTimeout }};
+                proxy_read_timeout {{ .Values.proxy.readTimeout }};
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            location /healthz {
+                proxy_pass http://{{ .Values.api.host }}:{{ .Values.api.port }}/healthz;
+                proxy_connect_timeout {{ .Values.proxy.connectTimeout }};
+                proxy_read_timeout {{ .Values.proxy.readTimeout }};
+                proxy_set_header Host $host;
+            }
+        }
+    }

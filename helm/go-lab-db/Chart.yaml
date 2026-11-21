@@ -1,0 +1,6 @@
+apiVersion: v2
+name: go-lab-db
+description: PostgreSQL StatefulSet chart for go_lab_api
+type: application
+version: 0.1.0
+appVersion: "16"
