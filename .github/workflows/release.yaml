@@ -1,0 +1,86 @@
+name: Releases
+
+on:
+  push:
+    tags:
+      - 'ui-v*'
+      - 'api-v*'
+      - 'db-v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-ui:
+    if: startsWith(github.ref_name, 'ui-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pack UI bundle
+        run: |
+          VERSION="${GITHUB_REF_NAME#ui-}"
+          ASSET_NAME="ui-${VERSION}.tar.gz"
+          mkdir -p /tmp/ui-pack
+          # Замени путь на папку с index.html и статикой (например, ui/. или dist/.)
+          cp -r ui/. /tmp/ui-pack/
+          tar -czf "${ASSET_NAME}" -C /tmp/ui-pack .
+          echo "ASSET_NAME=${ASSET_NAME}" >> "$GITHUB_ENV"
+
+      - name: Publish UI release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ASSET_NAME }}
+
+  release-api:
+    if: startsWith(github.ref_name, 'api-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        run: |
+          VERSION="${GITHUB_REF_NAME#api-}"
+          OWNER_LOWER="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE="ghcr.io/${OWNER_LOWER}/go-lab-api"
+          # Замени контекст сборки (например, ./api или .), если main.go лежит в подпапке
+          docker build -t "${IMAGE}:${VERSION}" -t "${IMAGE}:latest" .
+          docker push "${IMAGE}:${VERSION}"
+          docker push "${IMAGE}:latest"
+
+      - name: Package API Helm chart
+        run: |
+          VERSION="${GITHUB_REF_NAME#api-}"
+          helm package helm/go-lab-api --version "${VERSION#v}" --app-version "${VERSION#v}"
+
+      - name: Publish API release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: go-lab-api-*.tgz
+
+  release-db:
+    if: startsWith(github.ref_name, 'db-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Package DB Helm chart
+        run: |
+          VERSION="${GITHUB_REF_NAME#db-}"
+          helm package helm/go-lab-db --version "${VERSION#v}"
+
+      - name: Publish DB release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: go-lab-db-*.tgz
