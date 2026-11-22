@@ -1,5 +1,5 @@
 :root > * {
-  --md-primary-fg-color:        #C2955A;
-  --md-primary-fg-color--light: #D4AE7E;
-  --md-primary-fg-color--dark:  #8B6535;
+  --md-primary-fg-color:        #d19d62;
+  --md-primary-fg-color--light: #ddb988;
+  --md-primary-fg-color--dark:  #a67a42;
 }
