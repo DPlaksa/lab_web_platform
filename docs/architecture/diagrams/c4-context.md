@@ -3,17 +3,20 @@
 Shows how the platform fits into its environment and who interacts with it.
 
 ```mermaid
-C4Context
-    title System Context — lab_web_platform
+flowchart TD
+    user["👤 User\n─────────────\nOpens the web page\nand clicks the button"]
 
-    Person(user, "User", "Opens the web page and clicks the button")
+    subgraph platform["🖥️ lab_web_platform"]
+        direction TB
+        app["Single-page web application\nwith a click counter\nbacked by PostgreSQL"]
+    end
 
-    System(platform, "lab_web_platform", "Single-page web application with a click counter backed by PostgreSQL")
+    subgraph external["External Systems"]
+        ghcr["📦 GitHub Container Registry\n─────────────\nHosts go-lab-api\nDocker image"]
+        github["🐙 GitHub\n─────────────\nSource code, Helm chart\nand UI bundle releases"]
+    end
 
-    System_Ext(ghcr, "GitHub Container Registry", "Hosts the go-lab-api Docker image")
-    System_Ext(github, "GitHub", "Source code, Helm chart releases and UI static bundle releases")
-
-    Rel(user, platform, "Opens in browser", "HTTP")
-    Rel(platform, ghcr, "Pulls container image", "HTTPS")
-    Rel(platform, github, "Pulls UI release archive", "HTTPS")
+    user -->|"HTTP — Opens in browser"| platform
+    platform -->|"HTTPS — Pulls container image"| ghcr
+    platform -->|"HTTPS — Pulls UI release archive"| github
 ```

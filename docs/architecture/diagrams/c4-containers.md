@@ -3,20 +3,18 @@
 Shows the three runtime components inside the platform and how they communicate.
 
 ```mermaid
-C4Container
-    title Container Diagram — lab_web_platform
+flowchart TD
+    user["👤 User\nBrowser"]
 
-    Person(user, "User", "Browser")
+    subgraph k8s["Kubernetes Cluster — k8s-lab-n1"]
+        ui["🌐 go-lab-ui\n─────────────\nnginx\n─────────────\nServes static HTML/JS\nProxies /api/* to go-lab-api"]
+        api["⚙️ go-lab-api\n─────────────\nGo / Fiber v2\n─────────────\nGET /healthz\nPOST /api/ping"]
+        db[("🗄️ go-lab-db\n─────────────\nPostgreSQL 16\n─────────────\nbutton_stats table\nclick counter")]
+    end
 
-    System_Boundary(k8s, "Kubernetes Cluster (k8s-lab-n1)") {
-        Container(ui, "go-lab-ui", "nginx", "Serves static HTML/JS and proxies /api/* to go-lab-api")
-        Container(api, "go-lab-api", "Go / Fiber v2", "REST API: GET /healthz, POST /api/ping — increments click counter")
-        ContainerDb(db, "go-lab-db", "PostgreSQL 16", "Stores button_stats table with click counter")
-    }
-
-    Rel(user, ui, "HTTP GET /", "HTTP :80")
-    Rel(user, ui, "POST /api/ping", "HTTP :80")
-    Rel(ui, api, "Proxy /api/*", "HTTP :8080")
-    Rel(ui, api, "Proxy /healthz", "HTTP :8080")
-    Rel(api, db, "SELECT / UPDATE button_stats", "TCP :5432")
+    user -->|"HTTP :80 — GET /"| ui
+    user -->|"HTTP :80 — POST /api/ping"| ui
+    ui -->|"HTTP :8080 — proxy /api/*"| api
+    ui -->|"HTTP :8080 — proxy /healthz"| api
+    api -->|"TCP :5432 — SELECT / UPDATE"| db
 ```
