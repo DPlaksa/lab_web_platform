@@ -19,3 +19,9 @@ Thumbs.db
 # Local secrets / env
 .env
 *.local
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
