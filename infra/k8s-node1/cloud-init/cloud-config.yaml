@@ -77,6 +77,19 @@ runcmd:
   # Install Flannel CNI
   - kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
+  # Fix CoreDNS upstream: systemd-resolved stub (127.0.0.53) is not reachable from pods,
+  # use the real upstream DNS that Multipass provides via the gateway
+  - UPSTREAM_DNS=$(resolvectl status | awk '/DNS Servers:/{print $3; exit}')
+  - |
+    kubectl --kubeconfig=/etc/kubernetes/admin.conf get configmap coredns -n kube-system -o json \
+    | sed "s|forward . /etc/resolv.conf|forward . ${UPSTREAM_DNS}|g" \
+    | kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f -
+  - kubectl --kubeconfig=/etc/kubernetes/admin.conf rollout restart deployment coredns -n kube-system
+
+  # Install local-path-provisioner and set as default storage class
+  - kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+  - kubectl --kubeconfig=/etc/kubernetes/admin.conf patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 power_state:
   mode: reboot
   delay: now

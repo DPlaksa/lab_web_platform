@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: go-lab-api
-  tag: latest
+  repository: ghcr.io/dplaksa/go-lab-api
+  tag: v0.1.0
   pullPolicy: IfNotPresent
 
 service:
