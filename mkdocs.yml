@@ -21,8 +21,6 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
-    - navigation.tabs
-    - navigation.sections
     - navigation.top
     - search.highlight
     - content.code.copy
@@ -53,13 +51,13 @@ extra_css:
 
 nav:
   - Home: index.md
-  - System Context(C4 Level 1): architecture/diagrams/c4-context.md
-  - Containers(C4 Level 2): architecture/diagrams/c4-containers.md
+  - System Context (C4 Level 1): architecture/diagrams/c4-context.md
+  - Containers (C4 Level 2): architecture/diagrams/c4-containers.md
   - Decisions (ADR):
-          - Decisions Index: architecture/decisions/index.md
-          - ADR-001 kubeadm: architecture/decisions/001-use-kubeadm.md
-          - ADR-002 Flannel CNI: architecture/decisions/002-use-flannel-cni.md
-          - ADR-003 Helm releases: architecture/decisions/003-use-helm-independent-releases.md
-          - ADR-004 DB migrations: architecture/decisions/004-db-migrations-in-initdb.md
+      - Decisions Index: architecture/decisions/index.md
+      - ADR-001 kubeadm: architecture/decisions/001-use-kubeadm.md
+      - ADR-002 Flannel CNI: architecture/decisions/002-use-flannel-cni.md
+      - ADR-003 Helm releases: architecture/decisions/003-use-helm-independent-releases.md
+      - ADR-004 DB migrations: architecture/decisions/004-db-migrations-in-initdb.md
   - Deploy: runbooks/deploy.md
   - Troubleshooting: runbooks/troubleshooting.md
