@@ -40,7 +40,7 @@ lab_web_platform/
 
 ## Quick start
 
-See the [Deploy runbook](runbooks/deploy.md) for full instructions.
+See the ***[Deploy runbook](runbooks/deploy.md)*** for full instructions.
 
 ## Roadmap
 
