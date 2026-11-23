@@ -4,7 +4,7 @@ A production-style web platform built for learning and demonstrating modern DevO
 
 ## What it is
 
-A three-component application — UI, API, and PostgreSQL — fully defined as code and deployable to a local Kubernetes cluster with a single `terraform apply`.
+A three-component application (UI, API, and PostgreSQL) fully defined and configured declaratively as code, and deployable to a Kubernetes cluster using Terraform and Helm.
 
 ## Stack
 
